@@ -1,6 +1,6 @@
 import React from "react";
 import "./Profile.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateSetting } from "../../store/slices/userReducer";
 
