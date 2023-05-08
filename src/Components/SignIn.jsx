@@ -8,7 +8,12 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebase";
-import { getSnackbar, setLog, setSnackbar, setUser } from "../userReducer";
+import {
+  getSnackbar,
+  setLog,
+  setSnackbar,
+  setUser,
+} from "../store/slices/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import MySnackbar from "./mySnackbar.jsx";
 

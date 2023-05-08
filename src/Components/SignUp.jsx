@@ -15,7 +15,7 @@ import {
   setLog,
   setSnackbar,
   setUser,
-} from "../userReducer";
+} from "../store/slices/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { MuiFileInput } from "mui-file-input";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";

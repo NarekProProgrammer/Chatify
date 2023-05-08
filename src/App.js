@@ -4,12 +4,12 @@ import "./App.css";
 import SignIn from "./Components/SignIn";
 import SignUp from "./Components/SignUp";
 import Home from "./Components/Home";
-import Asd from "./Components/Asd";
-import { getLog, setLog, setUser } from "./userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
+import Settings from "./Components/Profile/Profile";
+import { getLog, setLog, setUser } from "./store/slices/userReducer";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ export default function App() {
       {isLoggedIn ? (
         <>
           <Route path="/" index element={<Home />} />
-          <Route path="/asd" element={<Asd />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate replace to="/" />} />
         </>
       ) : (
