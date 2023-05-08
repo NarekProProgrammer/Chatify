@@ -22,14 +22,13 @@ const userReducer = createSlice({
       type: "",
       message: "",
     },
+    isAuthenticating: true,
   },
 
   reducers: {
-    updateSetting(state, action) {
+    updateUserData(state, action) {
       const { field, value } = action.payload;
-      updateDoc(doc(db, "Users", state.userData.uid), {
-        [field]: value,
-      });
+      state.userData[field] = value;
     },
     setUser: (state, action) => {
       state.userData = action.payload;
@@ -49,6 +48,9 @@ const userReducer = createSlice({
     setRem: (state, action) => {
       state.remember = action.payload;
     },
+    setIsAuthenticating: (state, action) => {
+      state.isAuthenticating = false;
+    },
   },
 });
 
@@ -61,6 +63,8 @@ export const {
   setRem,
   setImgLink,
   setSnackbar,
+  setIsAuthenticating,
+  updateUserData,
 } = userReducer.actions;
 
 export const getUser = (state) => state.user.userData;
@@ -68,3 +72,4 @@ export const getLog = (state) => state.user.isLoggedIn;
 export const getRem = (state) => state.user.remember;
 export const getImgLink = (state) => state.user.imgLink;
 export const getSnackbar = (state) => state.user.snackbar;
+export const getIsAuthenticating = (state) => state.user.isAuthenticating;

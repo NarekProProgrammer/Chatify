@@ -2,11 +2,14 @@ import React from "react";
 import "./Profile.css";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateSetting } from "../../store/slices/userReducer";
+import { doc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../../firebase";
+import { getUser } from "../../store/slices/userReducer";
+import { updateUserData } from "../../store/slices/userReducer";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const userInfo = useSelector((state) => state.user);
+  const userInfo = useSelector(getUser);
 
   const [editingFirstName, setEditingFirstName] = useState(false);
   const [editingLastName, setEditingLastName] = useState(false);
@@ -14,22 +17,34 @@ const Profile = () => {
   const [editingFloor, setEditingFloor] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [editingPassword, setEditingPassword] = useState(false);
+  const [firstName, setFirstName] = useState(userInfo.firstName);
+  const uid = auth.currentUser.uid;
 
-  const onClickEditName = (e) => {
-    dispatch(updateSetting({ field: "firstName", value: e.target.value }));
+  async function onSave() {
+    try {
+      await updateDoc(doc(db, "Users", uid), {
+        firstName: userInfo.firstName,
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
+  const onChangeFirstName = async (e) => {
+    dispatch(updateUserData({ field: "firstName", value: e.target.value }));
   };
-  const onClickEditLastName = (e) => {
-    dispatch(updateSetting({ field: "lastName", value: e.target.value }));
+  const onClickEditLastName = async (e) => {
+    dispatch(updateUserData({ field: "lastName", value: e.target.value }));
   };
   const onClickEditDateOfBirth = (e) => {};
-  const onClickEditFloor = (e) => {
-    dispatch(updateSetting({ field: "floor", value: e.target.value }));
+  const onClickEditFloor = async (e) => {
+    dispatch(updateUserData({ field: "floor", value: e.target.value }));
   };
-  const onClickEditEmail = (e) => {
-    dispatch(updateSetting({ field: "email", value: e.target.value }));
+  const onClickEditEmail = async (e) => {
+    dispatch(updateUserData({ field: "email", value: e.target.value }));
   };
-  const onClickEditPassword = (e) => {
-    dispatch(updateSetting({ field: "password", value: e.target.value }));
+  const onClickEditPassword = async (e) => {
+    dispatch(updateUserData({ field: "password", value: e.target.value }));
   };
 
   const [avatarUrl, setAvatarUrl] = useState("/avatar.png");
@@ -47,17 +62,16 @@ const Profile = () => {
     <div className="main-settings-containter">
       <div className="profile-card">
         <div className="photo-card">
-          {/* <img src="/avatar.png" alt="Avataaar" /> */}
-          <img src={avatarUrl} alt="avatar" />
-          <div class="profile-card-info">
+          <img src={userInfo.avatar || avatarUrl} alt="avatar" />
+          <div className="profile-card-info">
             <h4>{`${userInfo.firstName} ${userInfo.lastName}`}</h4>
           </div>
         </div>
         <div>
           {/* <input className="profile-photo-upload" type="file" onChange={handleFileUpload} /> */}
-          <label class="profile-photo-upload">
+          <label className="profile-photo-upload">
             <input type="file" onChange={handleFileUpload} />
-            <i class="fa fa-cloud-upload"></i> Change profile photo
+            <i className="fa fa-cloud-upload"></i> Change profile photo
           </label>
         </div>
       </div>
@@ -72,12 +86,16 @@ const Profile = () => {
                 <input
                   className="input input-editName"
                   type="text"
-                  value={userInfo.firstName}
-                  onChange={onClickEditName}
+                  value={firstName}
+                  onChange={(e) => {
+                    setFirstName(e.target.value);
+                    onChangeFirstName(e);
+                  }}
                 />
                 <button
                   className="btn btn-save"
                   onClick={() => {
+                    onSave();
                     setEditingFirstName(false);
                   }}
                 >
@@ -86,7 +104,7 @@ const Profile = () => {
               </div>
             ) : (
               <div className="">
-                <p className="user-info">{userInfo.firstName}</p>
+                <p className="user-info">{firstName}</p>
                 <button
                   className="btn btn-edit"
                   onClick={() => {

@@ -9,10 +9,10 @@ import {
 } from "../store/slices/userReducer.js";
 
 export default function Home() {
-  const email = useSelector(getUser).email;
-  const nickname = useSelector(getUser).nickname;
-  const password = useSelector(getUser).password;
-  const avatar = useSelector(getUser).avatar;
+  const email = useSelector(getUser)?.email;
+  const nickname = useSelector(getUser)?.nickname;
+  const password = useSelector(getUser)?.password;
+  const avatar = useSelector(getUser)?.avatar;
   const snackbar = useSelector(getSnackbar);
   const dispatch = useDispatch();
 

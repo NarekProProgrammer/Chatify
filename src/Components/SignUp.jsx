@@ -229,11 +229,22 @@ export default function SignUp() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <MuiFileInput
+                  {/* <MuiFileInput
                     value={file}
                     onChange={changeFile}
                     accept="image/*"
-                  />
+                  /> */}
+                  <div>
+                    <label className="profile-photo-upload">
+                      <input
+                        type="file"
+                        value={file}
+                        onChange={changeFile}
+                        accept="image/*"
+                      />
+                      <i className="fa fa-cloud-upload"></i> Profile photo
+                    </label>
+                  </div>
                 </Grid>
               </Grid>
               <Button

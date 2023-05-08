@@ -9,7 +9,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
 import Settings from "./Components/Profile/Profile";
-import { getLog, setLog, setUser } from "./store/slices/userReducer";
+import {
+  getIsAuthenticating,
+  getLog,
+  setIsAuthenticating,
+  setLog,
+  setUser,
+} from "./store/slices/userReducer";
+import { LinearProgress } from "@mui/material";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -23,13 +30,18 @@ export default function App() {
     } else {
       dispatch(setLog(false));
     }
+    dispatch(setIsAuthenticating(false));
   });
   function useForceUpdate() {
     const [value, setValue] = React.useState(0);
     return () => setValue((value) => value + 1);
   }
   const forceUpdate = useForceUpdate();
+  const isAuthenticating = useSelector(getIsAuthenticating);
   let isLoggedIn = useSelector(getLog);
+  if (isAuthenticating) {
+    return <LinearProgress />;
+  }
   return (
     <Routes>
       {isLoggedIn ? (
