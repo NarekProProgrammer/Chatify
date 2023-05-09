@@ -17,9 +17,8 @@ import {
   setUser,
 } from "../store/slices/userReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { MuiFileInput } from "mui-file-input";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import MySnackbar from "./mySnackbar.jsx";
 
 const theme = createTheme();
@@ -27,11 +26,12 @@ const theme = createTheme();
 export default function SignUp() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [file, setFile] = React.useState(null);
+  const [file, setFile] = React.useState("");
   const [nickname, setNickname] = React.useState("");
   const [emailError, setEmailError] = React.useState(null);
   const [passwordError, setPasswordError] = React.useState(null);
   const [nickError, setNickError] = React.useState(null);
+  const [fileName, setFileName] = React.useState("Profile picture");
   const dispatch = useDispatch();
   const snackbar = useSelector(getSnackbar);
   let uid = "";
@@ -68,9 +68,10 @@ export default function SignUp() {
     }
   };
 
-  const changeFile = (newFile) => {
-    if (newFile && newFile.type.includes("image")) {
-      setFile(newFile);
+  const handleChange = (event) => {
+    if (event.target.files[0] && event.target.files[0].type.includes("image")) {
+      setFile(event.target.files[0]);
+      setFileName(event.target.files[0].name);
     }
   };
 
@@ -87,8 +88,11 @@ export default function SignUp() {
       () => {},
       (err) => console.log(err),
       () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
           dispatch(setImgLink(url));
+          await updateDoc(doc(db, "Users", uid), {
+            avatar: url,
+          });
         });
       }
     );
@@ -229,20 +233,14 @@ export default function SignUp() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  {/* <MuiFileInput
-                    value={file}
-                    onChange={changeFile}
-                    accept="image/*"
-                  /> */}
                   <div>
                     <label className="profile-photo-upload">
                       <input
                         type="file"
-                        value={file}
-                        onChange={changeFile}
-                        accept="image/*"
+                        onChange={handleChange}
+                        accept="/image/*"
                       />
-                      <i className="fa fa-cloud-upload"></i> Profile photo
+                      <i className="fa fa-cloud-upload">{fileName}</i>
                     </label>
                   </div>
                 </Grid>

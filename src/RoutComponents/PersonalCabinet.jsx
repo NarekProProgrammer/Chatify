@@ -7,6 +7,7 @@ import {
   getUser,
   setSnackbar,
 } from "../store/slices/userReducer.js";
+import * as React from "react";
 
 export default function Home() {
   const email = useSelector(getUser)?.email;
@@ -37,19 +38,21 @@ export default function Home() {
         );
       });
   }
-
+  React.useEffect(() => {
+    document.body.style.backgroundColor = "#2fb5be";
+  }, []);
   return (
     <div>
       <p>
         Your email: {email}.<br />
         Your nickname: {nickname}.<br />
         Your password: {password}.<br />
-        Your avatar:{" "}
+        Your avatar:
         <img
           style={{ maxWidth: "100px", maxHeight: "100px" }}
           src={avatar}
           alt="avatar"
-        ></img>
+        />
       </p>
       <button onClick={signOutManually}>Sign out</button>
       {snackbar.show ? (
