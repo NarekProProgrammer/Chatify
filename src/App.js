@@ -1,14 +1,14 @@
 import * as React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
-import SignIn from "./Components/SignIn";
-import SignUp from "./Components/SignUp";
-import Home from "./Components/Home";
+import SignIn from "./RoutComponents/SignIn";
+import SignUp from "./RoutComponents/SignUp";
+import Home from "./RoutComponents/PersonalCabinet";
 import { useDispatch, useSelector } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
-import Settings from "./Components/Profile/Profile";
+import Settings from "./RoutComponents/Profile/Profile";
 import {
   getIsAuthenticating,
   getLog,

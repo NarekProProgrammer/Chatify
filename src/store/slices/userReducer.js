@@ -38,9 +38,6 @@ const userReducer = createSlice({
     },
     setImgLink: (state, action) => {
       state.imgLink = action.payload;
-      updateDoc(doc(db, "Users", state.userData.uid), {
-        avatar: action.payload,
-      });
     },
     setSnackbar: (state, action) => {
       state.snackbar = action.payload;
