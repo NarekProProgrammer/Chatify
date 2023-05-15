@@ -1,5 +1,11 @@
 .main-settings-containter{
-	display:flex;
+	display: flex;
+	flex-direction: column;
+}
+
+.page-main {
+	display: flex;
+	flex-direction: row;
 	margin-top: 20px;
 }
 

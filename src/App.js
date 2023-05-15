@@ -3,12 +3,12 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import SignIn from "./RoutComponents/SignIn";
 import SignUp from "./RoutComponents/SignUp";
-import Home from "./RoutComponents/PersonalCabinet";
+import Profile from "./RoutComponents/Profile";
 import { useDispatch, useSelector } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
-import Settings from "./RoutComponents/Profile/Profile";
+import Settings from "./RoutComponents/Settings/Settings";
 import {
   getIsAuthenticating,
   getLog,
@@ -17,6 +17,8 @@ import {
   setUser,
 } from "./store/slices/userReducer";
 import { LinearProgress } from "@mui/material";
+import Chat from "./RoutComponents/Chat/Chat";
+import NewChat from "./RoutComponents/NewChat/Checkout";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -46,9 +48,11 @@ export default function App() {
     <Routes>
       {isLoggedIn ? (
         <>
-          <Route path="/" index element={<Home />} />
+          <Route path="/profile" index element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate replace to="/" />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/newChat" element={<NewChat />} />
+          <Route path="*" element={<Navigate replace to="/profile" />} />
         </>
       ) : (
         <>

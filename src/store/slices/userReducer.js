@@ -1,21 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 const userReducer = createSlice({
   name: "user",
   initialState: {
-    firstName: "Max",
-    lastName: "Karpov",
-    dateOfBirth: "16 February",
-    floor: "male",
-    email: "maxkarpov@gmail.com",
-    password: "123asd",
-    phone: 123456,
-    adress: "St. Pushkin",
     userData: {},
     isLoggedIn: false,
-    remember: false,
     imgLink: "",
     snackbar: {
       show: false,
@@ -23,6 +14,8 @@ const userReducer = createSlice({
       message: "",
     },
     isAuthenticating: true,
+    currentChat: "",
+    profileValue: 0,
   },
 
   reducers: {
@@ -48,6 +41,15 @@ const userReducer = createSlice({
     setIsAuthenticating: (state, action) => {
       state.isAuthenticating = false;
     },
+    setCurrentChat: (state, action) => {
+      state.currentChat = action.payload;
+    },
+    addChat: (state, action) => {
+      state.userData.chats.push(action.payload);
+    },
+    setProfileValue: (state, action) => {
+      state.profileValue++;
+    },
   },
 });
 
@@ -62,6 +64,9 @@ export const {
   setSnackbar,
   setIsAuthenticating,
   updateUserData,
+  setCurrentChat,
+  addChat,
+  setProfileValue,
 } = userReducer.actions;
 
 export const getUser = (state) => state.user.userData;
@@ -70,3 +75,5 @@ export const getRem = (state) => state.user.remember;
 export const getImgLink = (state) => state.user.imgLink;
 export const getSnackbar = (state) => state.user.snackbar;
 export const getIsAuthenticating = (state) => state.user.isAuthenticating;
+export const getCurrentChat = (state) => state.user.currentChat;
+export const getProfileValue = (state) => state.user.profileValue;

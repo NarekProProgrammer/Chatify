@@ -18,7 +18,15 @@ import {
 } from "../store/slices/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import MySnackbar from "./mySnackbar.jsx";
 
 const theme = createTheme();
@@ -76,10 +84,6 @@ export default function SignUp() {
   };
 
   function handleUpload() {
-    if (!file) {
-      alert("Please choose a file first!");
-    }
-
     const storageRef = ref(storage, `/avatars/${uid}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -99,10 +103,20 @@ export default function SignUp() {
   }
 
   async function setUserData(id) {
+    const newUserChats = [];
+    const q = query(
+      collection(db, "Chats"),
+      where("members", "array-contains", email)
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      newUserChats.push(doc.id);
+    });
     await setDoc(doc(db, "Users", id), {
       email,
       password,
       nickname,
+      chats: newUserChats,
     });
   }
 
@@ -234,14 +248,23 @@ export default function SignUp() {
                 </Grid>
                 <Grid item xs={12}>
                   <div>
-                    <label className="profile-photo-upload">
-                      <input
-                        type="file"
-                        onChange={handleChange}
-                        accept="/image/*"
-                      />
-                      <i className="fa fa-cloud-upload">{fileName}</i>
-                    </label>
+                    <Button
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                      style={{
+                        borderRadius: "20px",
+                        backgroundColor: "#2fb5be",
+                      }}
+                    >
+                      <label>
+                        <input
+                          type="file"
+                          onChange={handleChange}
+                          accept="image/*"
+                        />
+                        {fileName}
+                      </label>
+                    </Button>
                   </div>
                 </Grid>
               </Grid>
