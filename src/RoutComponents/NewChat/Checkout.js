@@ -1,15 +1,12 @@
 import * as React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Toolbar from "@mui/material/Toolbar";
 import Paper from "@mui/material/Paper";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import BasicInfo from "./BasicInfo";
@@ -19,7 +16,6 @@ import {
   addChat,
   getUser,
   setCurrentChat,
-  updateUserData,
 } from "../../store/slices/userReducer";
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,7 +26,6 @@ import {
   getDoc,
   getDocs,
   query,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -53,7 +48,7 @@ export default function Checkout() {
   const [currentEmailError, setCurrentEmailError] = React.useState(null);
   const [emails, setEmails] = React.useState([]);
   const [navigateTo, setNavigateTo] = React.useState(null);
-  let uid = "";
+  const [chatId, setChatId] = React.useState("");
 
   async function createChat() {
     emails.forEach(async (member, id) => {
@@ -68,12 +63,12 @@ export default function Checkout() {
       members: [userInfo.email, ...emails],
       messages: [],
     });
-    uid = docRef.id;
+    setChatId(docRef.id);
     const oldChats = (
       await getDoc(doc(db, "Users", auth.currentUser.uid))
     ).data().chats;
     await updateDoc(doc(db, "Users", auth.currentUser.uid), {
-      chats: [...oldChats, uid],
+      chats: [...oldChats, docRef.id],
     });
     emails.forEach(async (member) => {
       const q = query(collection(db, "Users"), where("email", "==", member));
@@ -85,17 +80,17 @@ export default function Checkout() {
       }
       const oldChats = (await getDoc(doc(db, "Users", member))).data().chats;
       await updateDoc(doc(db, "Users", member), {
-        chats: [...oldChats, uid],
+        chats: [...oldChats, docRef.id],
       });
     });
-    dispatch(addChat(uid));
-    dispatch(setCurrentChat(uid));
+    dispatch(addChat(docRef.id));
+    dispatch(setCurrentChat(docRef.id));
 
     if (!file) {
       return;
     }
 
-    const storageRef = ref(storage, `/logos/${uid}`);
+    const storageRef = ref(storage, `/logos/${docRef.id}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -104,7 +99,7 @@ export default function Checkout() {
       (err) => console.log(err),
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
-          await updateDoc(doc(db, "Chats", uid), {
+          await updateDoc(doc(db, "Chats", docRef.id), {
             logo: url,
           });
         });
@@ -112,7 +107,10 @@ export default function Checkout() {
     );
   }
 
-  function navigateToChat() {
+  async function navigateToChat() {
+    await updateDoc(doc(db, "Users", auth.currentUser.uid), {
+      currentChat: chatId,
+    });
     setNavigateTo("chat");
   }
 
@@ -196,7 +194,7 @@ export default function Checkout() {
           {activeStep === steps.length ? (
             <React.Fragment>
               <Typography variant="h5" gutterBottom>
-                Press {name} to create it and to to be redirected
+                Press {name} to be redirected
               </Typography>
               <Button
                 variant="contained"

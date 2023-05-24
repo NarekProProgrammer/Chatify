@@ -13,36 +13,35 @@ import {
 import { signOut } from "firebase/auth";
 import React from "react";
 import {
-  getImgLink,
   getUser,
-  setNavigatedToProfile,
   setProfileValue,
   setSnackbar,
 } from "../store/slices/userReducer";
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Header({ settings, headerName, headerLogo }) {
   const dispatch = useDispatch();
   const user = useSelector(getUser);
   const email = user?.email;
   const nickname = user?.nickname;
-  const avatar = useSelector(getUser).avatar;
+  const [avatar, setAvatar] = React.useState("");
 
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  React.useEffect(() => {
+    (async function aF() {
+      const docSnap = await getDoc(doc(db, "Users", auth.currentUser.uid));
+      const pic = docSnap.data().avatar;
+      setAvatar(pic);
+    })();
+  }, []);
+
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [navigateTo, setNavigateTo] = React.useState(null);
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
