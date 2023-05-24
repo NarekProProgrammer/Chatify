@@ -55,7 +55,7 @@ export default function Chat() {
   const userInfo = useSelector(getUser);
   const [chat, setChat] = React.useState({});
   const [chatId, setChatId] = React.useState("");
-  const [chatMembers, setChatMembers] = React.useState([userInfo.email]);
+  const [chatMembers, setChatMembers] = React.useState([userInfo?.email]);
   const [chatMembersDatas, setChatMembersDatas] = React.useState([userInfo]);
   const [messages, setMessages] = React.useState([]);
   const [messagesDatas, setMessagesDatas] = React.useState([]);
@@ -101,10 +101,9 @@ export default function Chat() {
       setChatMembers(docSnap.data().members);
       setMessages(docSnap.data().messages);
       onSnapshot(doc(db, "Chats", docSnap.id), (doc) => {
-        const newMessages =
-          doc.data().messages.toString() !== docSnap.data().messages.toString();
-        const newUsers =
-          doc.data().members.toString() !== docSnap.data().members.toString();
+        const newMessages = doc.data().messages.length !== messages.length;
+        setChatMembers(doc.data().members);
+        const newUsers = doc.data().members.length !== chatMembers.length;
         if (newMessages) {
           setMessages(doc.data().messages);
         }

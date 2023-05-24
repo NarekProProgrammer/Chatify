@@ -17,7 +17,7 @@ import {
   ThemeProvider,
   createTheme,
 } from "@mui/material";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import Header from "./Header.jsx";
 
 export default function Home() {
@@ -25,12 +25,14 @@ export default function Home() {
   const theme = createTheme();
   const [chats, setChats] = React.useState([]);
   const profileValue = useSelector(getProfileValue);
+  const [reloadV, reload] = React.useState(0);
 
   React.useEffect(() => {
     (async function asyncFunc() {
       const chatSnap = await getDoc(doc(db, "Users", auth.currentUser.uid));
-      const userChats = chatSnap.data().chats;
-      userChats.forEach(async (id) => {
+      const userChats = chatSnap.data()?.chats;
+      console.log(userChats, chatSnap.data(), chatSnap);
+      userChats?.forEach(async (id) => {
         const docSnap = await getDoc(doc(db, "Chats", id));
         const chat = {
           ...docSnap.data(),
@@ -39,12 +41,24 @@ export default function Home() {
         setChats([...chats, chat]);
       });
     })();
-  }, [profileValue, chats]);
+  }, [profileValue, reloadV]);
 
   const [navigateTo, setNavigateTo] = React.useState(null);
 
   React.useEffect(() => {
     document.body.style.backgroundColor = "white";
+    onSnapshot(doc(db, "Users", auth.currentUser.uid), (docSnap) => {
+      setChats([]);
+      const userChats = docSnap.data()?.chats;
+      userChats?.forEach(async (id) => {
+        const docSnap = await getDoc(doc(db, "Chats", id));
+        const chat = {
+          ...docSnap.data(),
+          id: docSnap.id,
+        };
+        setChats([...chats, chat]);
+      });
+    });
   }, []);
   if (navigateTo) {
     return <Navigate replace to={`/${navigateTo.toLowerCase()}`} />;
@@ -53,6 +67,7 @@ export default function Home() {
 
   try {
     myChats = chats.map((el, id) => {
+      onSnapshot(doc(db, "Chats", el.id));
       return (
         <ListItem
           key={id}
