@@ -1,6 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
 
 const userReducer = createSlice({
   name: "user",

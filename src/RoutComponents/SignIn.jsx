@@ -7,17 +7,15 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { app, db } from "../firebase";
+import { app } from "../firebase";
 import {
   getSnackbar,
-  setChats,
   setLog,
   setSnackbar,
   setUser,
 } from "../store/slices/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import MySnackbar from "./mySnackbar.jsx";
-import { doc, getDoc } from "firebase/firestore";
 
 const theme = createTheme();
 

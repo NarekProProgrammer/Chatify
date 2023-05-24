@@ -2,7 +2,7 @@ import React from "react";
 import "./Settings.css";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { app, db, storage } from "../../firebase";
 import {
   getUser,
@@ -12,7 +12,6 @@ import {
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { Button } from "@mui/material";
 import { getAuth, updateEmail, updatePassword } from "firebase/auth";
-import { Navigate } from "react-router-dom";
 import Header from "../Header";
 
 const Profile = () => {
@@ -29,13 +28,22 @@ const Profile = () => {
   const [password, setPassword] = useState(userInfo.password);
   const [file, setFile] = React.useState("");
   const [fileName, setFileName] = React.useState("Profile picture");
-  const [navigateTo, setNavigateTo] = React.useState(null);
+  const [avatar, setAvatar] = React.useState("");
   const auth = getAuth(app);
   const uid = auth.currentUser.uid;
 
-  if (navigateTo) {
-    return <Navigate replace to={`/${navigateTo.toLowerCase()}`} />;
-  }
+  React.useEffect(() => {
+    (async function aF() {
+      const docSnap = await getDoc(doc(db, "Users", uid));
+      const pic = docSnap.data().avatar;
+      setAvatar(pic);
+      onSnapshot(doc(db, "Users", uid), (doc) => {
+        if (doc.data().avatar !== avatar) {
+          setAvatar(doc.data().avatar);
+        }
+      });
+    })();
+  }, []);
 
   const handleChange = (event) => {
     if (event.target.files[0] && event.target.files[0].type.includes("image")) {
@@ -46,8 +54,8 @@ const Profile = () => {
 
   function handleUpload() {
     if (!file) {
-      console.log(file);
       alert("Please choose a file first!");
+      return;
     }
 
     const storageRef = ref(storage, `/avatars/${uid}`);
@@ -113,7 +121,7 @@ const Profile = () => {
         <div className="profile-card">
           <div className="photo-card">
             <img
-              src={userInfo.avatar}
+              src={avatar}
               alt="avatar"
               onClick={() => window.open(userInfo.avatar, "_blank")}
             />
@@ -182,7 +190,7 @@ const Profile = () => {
                       setEditingFirstName(false);
                     }}
                   >
-                    <img src="/icon-save.png" />
+                    <img src="/icon-save.png" alt="save" />
                   </button>
                 </div>
               ) : (
@@ -194,7 +202,7 @@ const Profile = () => {
                       setEditingFirstName(true);
                     }}
                   >
-                    <img src="/icon-edit.png" />
+                    <img src="/icon-edit.png" alt="edit" />
                   </button>
                 </div>
               )}
@@ -223,7 +231,7 @@ const Profile = () => {
                       setEditingPhone(false);
                     }}
                   >
-                    <img src="/icon-save.png" />
+                    <img src="/icon-save.png" alt="save" />
                   </button>
                 </div>
               ) : (
@@ -235,7 +243,7 @@ const Profile = () => {
                       setEditingPhone(true);
                     }}
                   >
-                    <img src="/icon-edit.png" />
+                    <img src="/icon-edit.png" alt="edit" />
                   </button>
                 </div>
               )}
@@ -260,7 +268,7 @@ const Profile = () => {
                       setEditingEmail(false);
                     }}
                   >
-                    <img src="/icon-save.png" />
+                    <img src="/icon-save.png" alt="save" />
                   </button>
                 </div>
               ) : (
@@ -272,7 +280,7 @@ const Profile = () => {
                       setEditingEmail(true);
                     }}
                   >
-                    <img src="/icon-edit.png" />
+                    <img src="/icon-edit.png" alt="edit" />
                   </button>
                 </div>
               )}
@@ -302,7 +310,7 @@ const Profile = () => {
                       setEditingPassword(false);
                     }}
                   >
-                    <img src="/icon-save.png" />
+                    <img src="/icon-save.png" alt="save" />
                   </button>
                 </div>
               ) : (
@@ -314,7 +322,7 @@ const Profile = () => {
                       setEditingPassword(true);
                     }}
                   >
-                    <img src="/icon-edit.png" />
+                    <img src="/icon-edit.png" alt="edit" />
                   </button>
                 </div>
               )}

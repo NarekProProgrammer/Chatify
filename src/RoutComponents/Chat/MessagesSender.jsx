@@ -13,10 +13,11 @@ import FormatItalic from "@mui/icons-material/FormatItalic";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import Check from "@mui/icons-material/Check";
 import { TextField } from "@mui/material";
-import { auth, db } from "../../firebase";
+import { auth, db, storage } from "../../firebase";
 import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { useSelector } from "react-redux";
-import { getCurrentChat } from "../../store/slices/userReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentChat, setImgLink } from "../../store/slices/userReducer";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 export default function MessagesSender() {
   const [italic, setItalic] = React.useState(false);
@@ -54,13 +55,53 @@ export default function MessagesSender() {
       italic: italic,
       dateTime,
       author: auth.currentUser.uid,
+      type: "text",
     });
     const oldMessages = (await getDoc(doc(db, "Chats", chatId))).data()
       .messages;
     await updateDoc(doc(db, "Chats", chatId), {
-      messages: [...oldMessages, docSnap.id],
+      messages: [docSnap.id, ...oldMessages],
     });
   }
+
+  const handleChange = async (event) => {
+    const file = event.target.files[0],
+      fileName = event.target.files[0].name;
+    if (fileName === "") {
+      return;
+    }
+    const date = new Date();
+    let dateTime = `${date.getDate()} ${date.getMonth()} ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+    const docSnap = await addDoc(collection(db, "Messages"), {
+      dateTime,
+      author: auth.currentUser.uid,
+      type: "file",
+    });
+    const oldMessages = (await getDoc(doc(db, "Chats", chatId))).data()
+      .messages;
+    await updateDoc(doc(db, "Chats", chatId), {
+      messages: [docSnap.id, ...oldMessages],
+    });
+    const storageRef = ref(storage, `/files/${chatId}/${docSnap.id}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      () => {},
+      (err) => console.log(err),
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
+          await updateDoc(doc(db, "Messages", docSnap.id), {
+            url,
+            fileName,
+          });
+          await updateDoc(doc(db, "Chat", chatId), {
+            reloadV: Math.random(),
+          });
+        });
+      }
+    );
+  };
 
   return (
     <FormControl
@@ -117,6 +158,20 @@ export default function MessagesSender() {
           onClick={sendMessage}
         >
           Send
+        </Button>
+        <Button
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+          style={{
+            borderRadius: "20px",
+            backgroundColor: "white",
+            marginLeft: "10px",
+          }}
+        >
+          <label>
+            <input type="file" onChange={handleChange} />
+            Send a file
+          </label>
         </Button>
       </Box>
     </FormControl>
