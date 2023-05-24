@@ -20,21 +20,31 @@ import {
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
 export default function Header({ settings, headerName, headerLogo }) {
   const dispatch = useDispatch();
   const user = useSelector(getUser);
-  const email = user?.email;
-  const nickname = user?.nickname;
+  const [email, setEmail] = React.useState(user?.email);
+  const [nickname, setNickname] = React.useState(user?.nickname);
   const [avatar, setAvatar] = React.useState("");
 
   React.useEffect(() => {
     (async function aF() {
       const docSnap = await getDoc(doc(db, "Users", auth.currentUser.uid));
-      const pic = docSnap.data().avatar;
-      setAvatar(pic);
+      setAvatar(docSnap.data()?.avatar);
     })();
+    onSnapshot(doc(db, "Users", auth.currentUser.uid), (docSnap) => {
+      if (
+        email !== docSnap.data()?.email ||
+        nickname !== docSnap.data()?.nickname ||
+        avatar !== docSnap.data()?.avatar
+      ) {
+        setAvatar(docSnap.data()?.avatar);
+        setEmail(docSnap.data()?.email);
+        setNickname(docSnap.data()?.nickname);
+      }
+    });
   }, []);
 
   const [anchorElUser, setAnchorElUser] = React.useState(null);

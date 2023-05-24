@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { app, db, storage } from "../firebase";
+import { app, auth, db, storage } from "../firebase";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import {
   getSnackbar,
@@ -56,8 +56,8 @@ export default function SignUp() {
   const validatePassword = () => {
     if (password.length === 0) {
       setPasswordError("Required");
-    } else if (password.length < 8) {
-      setPasswordError("Password must contain at least 8 characters");
+    } else if (password.length < 6) {
+      setPasswordError("Password must contain at least 6 characters");
     } else if (!/[A-Z]/.test(password)) {
       setPasswordError("Password must contain at least one uppercase letter");
     } else if (!/[a-z]/.test(password)) {
@@ -128,7 +128,6 @@ export default function SignUp() {
     if (emailError || passwordError || nickError) {
       return;
     }
-    const auth = getAuth(app);
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
