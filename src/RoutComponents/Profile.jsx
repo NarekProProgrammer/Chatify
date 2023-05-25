@@ -24,49 +24,45 @@ export default function Home() {
   const snackbar = useSelector(getSnackbar);
   const theme = createTheme();
   const [chats, setChats] = React.useState([]);
-  const profileValue = useSelector(getProfileValue);
-  const [reloadV, reload] = React.useState(0);
-
-  React.useEffect(() => {
-    (async function asyncFunc() {
-      const chatSnap = await getDoc(doc(db, "Users", auth.currentUser.uid));
-      const userChats = chatSnap.data()?.chats;
-      console.log(userChats, chatSnap.data(), chatSnap);
-      userChats?.forEach(async (id) => {
-        const docSnap = await getDoc(doc(db, "Chats", id));
-        const chat = {
-          ...docSnap.data(),
-          id: docSnap.id,
-        };
-        setChats([...chats, chat]);
-      });
-    })();
-  }, [profileValue, reloadV]);
+  const [chatDatas, setChatDatas] = React.useState([]);
 
   const [navigateTo, setNavigateTo] = React.useState(null);
 
   React.useEffect(() => {
     document.body.style.backgroundColor = "white";
-    onSnapshot(doc(db, "Users", auth.currentUser.uid), (docSnap) => {
-      setChats([]);
-      const userChats = docSnap.data()?.chats;
-      userChats?.forEach(async (id) => {
-        const docSnap = await getDoc(doc(db, "Chats", id));
-        const chat = {
-          ...docSnap.data(),
-          id: docSnap.id,
-        };
-        setChats([...chats, chat]);
-      });
-    });
+    (async function aF() {
+      const userSnap = await getDoc(doc(db, "Users", auth.currentUser.uid));
+      setChats(userSnap.data().chats);
+    })();
   }, []);
+
   if (navigateTo) {
     return <Navigate replace to={`/${navigateTo.toLowerCase()}`} />;
   }
   let myChats;
 
+  async function addChatData(id) {
+    const chatSnap = await getDoc(doc(db, "Chats", id));
+    setChatDatas([
+      ...chatDatas,
+      {
+        ...chatSnap.data(),
+        id: chatSnap.id,
+      },
+    ]);
+  }
+
   try {
     myChats = chats.map((el, id) => {
+      chatDatas.forEach((chatData) => {
+        if (chatData?.id === el) {
+          el = chatData;
+        }
+      });
+      if (!el || typeof el === "string") {
+        addChatData(el);
+        return "";
+      }
       onSnapshot(doc(db, "Chats", el.id));
       return (
         <ListItem

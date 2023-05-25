@@ -226,7 +226,7 @@ export default function Chat() {
   async function addUserData(email) {
     let isNotIncluded = true;
     chatMembersDatas.forEach((user) => {
-      if (user.email === email) {
+      if (user?.email === email) {
         isNotIncluded = false;
       }
     });
