@@ -14,6 +14,7 @@ const userReducer = createSlice({
     isAuthenticating: true,
     currentChat: "",
     profileValue: 0,
+    signUp: false,
   },
 
   reducers: {
@@ -48,6 +49,9 @@ const userReducer = createSlice({
     setProfileValue: (state, action) => {
       state.profileValue++;
     },
+    setSignUp: (state, action) => {
+      state.signUp = action.payload;
+    },
   },
 });
 
@@ -65,6 +69,7 @@ export const {
   setCurrentChat,
   addChat,
   setProfileValue,
+  setSignUp,
 } = userReducer.actions;
 
 export const getUser = (state) => state.user.userData;
@@ -75,3 +80,4 @@ export const getSnackbar = (state) => state.user.snackbar;
 export const getIsAuthenticating = (state) => state.user.isAuthenticating;
 export const getCurrentChat = (state) => state.user.currentChat;
 export const getProfileValue = (state) => state.user.profileValue;
+export const getSignUp = (state) => state.user.signUp;
